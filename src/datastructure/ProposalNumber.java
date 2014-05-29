@@ -1,14 +1,16 @@
 package datastructure;
 
+import runtime.GlobalConfig;
+
 import java.io.Serializable;
 
 public class ProposalNumber implements Serializable, Comparable<ProposalNumber>{
 
-	public static int currentNumber = 0;
+	public static int currentNumber = GlobalConfig.INSTANCE.getCurrentNodeNumber();
 	private int numberValue;
 
 	public ProposalNumber() {
-		this.numberValue = currentNumber + 1;
+		this.numberValue = currentNumber + GlobalConfig.INSTANCE.getMaximumNodeNumber();
 		currentNumber = this.numberValue;
 	}
 

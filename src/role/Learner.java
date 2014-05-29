@@ -15,7 +15,7 @@ public class Learner extends PaxosRole {
 		super.handleMessage(message);
 		assert(message instanceof AcceptedMessage);
 		synchronized (System.out) {
-			System.out.println("Learner " + GlobalConfig.INSTANCE.getCurrentNode() + " get the Paxos value: " + ((AcceptedMessage) message).getPaxosValue().getValue());
+			System.out.println("Learner " + GlobalConfig.INSTANCE.getCurrentNodeNumber() + " get the Paxos value: " + ((AcceptedMessage) message).getPaxosValue().getValue());
 			System.out.flush();
 		}
 	}

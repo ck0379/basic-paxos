@@ -3,20 +3,19 @@ package runtime;
 import datastructure.RoleAddress;
 import role.*;
 
-import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public enum GlobalConfig {
     INSTANCE;
-    private int currentNode;
+    private int currentNodeNumber;
     private ConnectionProtocol connectionProtocol;
     public int ports[][] = {{10001, 10002, 10003}, {20001, 20002, 20003}, {30001, 30002, 30003}, {40001, 40002, 40003}, {50001, 50002, 50003}};
     private InetAddress ip;
 
     public void init(int currentNode, ConnectionProtocol connectionProtocol) {
 
-        this.currentNode = currentNode;
+        this.currentNodeNumber = currentNode;
         this.connectionProtocol = connectionProtocol;
         try {
             this.ip = InetAddress.getLocalHost();
@@ -27,11 +26,11 @@ public enum GlobalConfig {
 
     public RoleAddress getCurrentRoleAddressByRoleClass(Class paxosRoleClass) {
         if (paxosRoleClass.equals(Proposer.class)) {
-            return (new RoleAddress(this.ip, this.ports[this.currentNode][0]));
+            return (new RoleAddress(this.ip, this.ports[this.currentNodeNumber][0]));
         } else if (paxosRoleClass.equals(Acceptor.class)) {
-            return (new RoleAddress(this.ip, this.ports[this.currentNode][1]));
+            return (new RoleAddress(this.ip, this.ports[this.currentNodeNumber][1]));
         } else if (paxosRoleClass.equals(Learner.class)) {
-            return (new RoleAddress(this.ip, this.ports[this.currentNode][2]));
+            return (new RoleAddress(this.ip, this.ports[this.currentNodeNumber][2]));
         } else {
             return null;
         }
@@ -101,11 +100,15 @@ public enum GlobalConfig {
 
     public int getClientListenPortNumber() {
 
-        return (this.currentNode + 1) * 10000;
+        return (this.currentNodeNumber + 1) * 10000;
     }
 
-    public int getCurrentNode() {
-        return currentNode;
+    public int getCurrentNodeNumber() {
+        return currentNodeNumber;
+    }
+
+    public int getMaximumNodeNumber() {
+        return 10;
     }
 
     public ConnectionProtocol getConnectionProtocol() {
