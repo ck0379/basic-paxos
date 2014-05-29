@@ -9,7 +9,10 @@ import runtime.GlobalConfig;
 import java.util.ArrayList;
 
 public class Proposer extends PaxosRole{
-	
+
+    //NOTICE: this.reset() does not reset iAmLeader
+    private boolean iAmLeader = false;
+
 	private ProposalNumber currentProposalNumber = null;
 	private PaxosValue requestedValue = null;
 	private int numberOfPromises = 0;
@@ -46,6 +49,19 @@ public class Proposer extends PaxosRole{
 			this.sendMessage(new PrepareMessage(this.currentProposalNumber, this.myAddress, acceptorReceiverAddress));
 		}
 	}
+
+    private void resendPrepareMessage() {
+        RoleAddress[] allAcceptorAddresses = GlobalConfig.INSTANCE.getAllAcceptorAddresses();
+        ProposalNumber tempProposalNumber = this.highestAcceptedProposalNumber;
+        PaxosValue tempPaxosValue = this.requestedValue;
+        this.reset();
+        this.currentProposalNumber = new ProposalNumber(tempProposalNumber.getNumberValue()+1);
+        this.requestedValue = tempPaxosValue;
+
+        for (RoleAddress acceptorReceiverAddress : allAcceptorAddresses) {
+            this.sendMessage(new PrepareMessage(this.currentProposalNumber, this.myAddress, acceptorReceiverAddress));
+        }
+    }
 	
 	private void sendAcceptRequestMessage(ProposalNumber proposalNumber, PaxosValue paxosValue, RoleAddress senderAddress, ArrayList<RoleAddress> receiverAddresses) {
 		for (RoleAddress receiverAddress : receiverAddresses) {
@@ -77,10 +93,15 @@ public class Proposer extends PaxosRole{
 				}
 
 				quorum.add(message.getSenderAddress());
-
-				if (receivedNumber != null && this.currentProposalNumber != null && receivedNumber.compareTo(this.currentProposalNumber) > 0 && (this.highestAcceptedProposalNumber == null || receivedNumber!=null && this.highestAcceptedProposalNumber!=null && receivedNumber.compareTo(this.highestAcceptedProposalNumber) > 0)) {
-					this.highestAcceptedProposalNumber = receivedNumber;
-					this.paxosValueOfHighestAcceptedProposalNumber = receivedValue;
+				
+				if (receivedNumber != null && this.currentProposalNumber!=null && receivedNumber.compareTo(this.currentProposalNumber) > 0 && (this.highestAcceptedProposalNumber == null || receivedNumber!=null && this.highestAcceptedProposalNumber!=null && receivedNumber.compareTo(this.highestAcceptedProposalNumber) > 0)) {
+                    if (this.iAmLeader == true) {
+                        System.out.println("LEADER RESEND!!");
+                        this.resendPrepareMessage();
+                    } else {
+                        this.highestAcceptedProposalNumber = receivedNumber;
+                        this.paxosValueOfHighestAcceptedProposalNumber = receivedValue;
+                    }
 				} else {
 
 				}
@@ -96,18 +117,21 @@ public class Proposer extends PaxosRole{
 					}
 					this.ignoreNewPromiseMessage = true;
 				} else {
-					// wait
+					// wait more promise
 				}
 
 			} else {
 
 			}
 			
-		} else if (message instanceof AcceptedMessage) {
+		} else if (message instanceof AcceptedMessage && this.currentProposalNumber!=null && ((AcceptedMessage) message).getProposalNumber().compareTo(this.currentProposalNumber)>=0) {
 			this.reset();
 		} else {
 			// Something wrong, what kind of exception to throw?
 		}
 	}
 
+    public boolean isiAmLeader() {
+        return iAmLeader;
+    }
 }

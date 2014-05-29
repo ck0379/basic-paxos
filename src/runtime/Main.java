@@ -20,13 +20,6 @@ public class Main {
         proposer.start();
         acceptor.start();
         learner.start();
-        if (args.length == 2) {
-            try {
-                sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            proposer.initiatePaxos(new PaxosValue(args[1]));
-        }
+        new Thread(new ClientRequestHandler(proposer)).start();
     }
 }

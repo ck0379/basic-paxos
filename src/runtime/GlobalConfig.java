@@ -99,6 +99,11 @@ public enum GlobalConfig {
         }
     }
 
+    public int getClientListenPortNumber() {
+
+        return (this.currentNode + 1) * 10000;
+    }
+
     public int getCurrentNode() {
         return currentNode;
     }

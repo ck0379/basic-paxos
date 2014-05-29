@@ -16,10 +16,10 @@ public class ProposalNumber implements Serializable, Comparable<ProposalNumber>{
 		currentNumber = this.numberValue;
 	}
 
-	//	public ProposalNumber(int numberValue) {
-	//		this.numberValue = numberValue;
-	//		currentNumber = this.numberValue;
-	//	}
+    public ProposalNumber(int numberValue) {
+        this.numberValue = numberValue;
+        currentNumber = this.numberValue;
+    }
 
 	public int getNumberValue() {
 		return numberValue;
