@@ -6,11 +6,6 @@ import datastructure.RoleAddress;
 
 public class AcceptedMessage extends PaxosMessage {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1309580691380441299L;
-
 	private ProposalNumber proposalNumber;
 	private PaxosValue paxosValue;
 

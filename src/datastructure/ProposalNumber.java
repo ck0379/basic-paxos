@@ -3,10 +3,6 @@ package datastructure;
 import java.io.Serializable;
 
 public class ProposalNumber implements Serializable, Comparable<ProposalNumber>{
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7084477534968519076L;
 
 	public static int currentNumber = 0;
 	private int numberValue;

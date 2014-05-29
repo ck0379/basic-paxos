@@ -7,11 +7,6 @@ import java.util.Date;
 
 public abstract class PaxosMessage implements Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -6012473313479509134L;
-
 	private RoleAddress senderAddress;
 	private RoleAddress receiverAddress;
 	

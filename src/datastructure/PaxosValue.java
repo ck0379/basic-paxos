@@ -3,11 +3,7 @@ package datastructure;
 import java.io.Serializable;
 
 public class PaxosValue implements Serializable{
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1744215336341276159L;
-	
+
 	private String paxosString = null;
 
 	private PaxosValue() {

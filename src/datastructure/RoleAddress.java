@@ -7,10 +7,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class RoleAddress implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8510903929976412240L;
+
 	private InetAddress ip;
 	private int portNumber;
 	
