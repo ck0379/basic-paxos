@@ -10,7 +10,7 @@ public enum GlobalConfig {
     INSTANCE;
     private int currentNodeNumber;
     private ConnectionProtocol connectionProtocol;
-    public int ports[][] = {{10001, 10002, 10003}, {20001, 20002, 20003}, {30001, 30002, 30003}, {40001, 40002, 40003}, {50001, 50002, 50003}};
+    public int ports[][] = {{10001, 10002, 10003}, {20001, 20002, 20003}, {30001, 30002, 30003}};//, {40001, 40002, 40003}, {50001, 50002, 50003}};
     private InetAddress ip;
 
     public void init(int currentNode, ConnectionProtocol connectionProtocol) {
@@ -41,27 +41,27 @@ public enum GlobalConfig {
     }
 
     public RoleAddress[] getAllProposerAddresses() {
-        RoleAddress[] allProposerAddresses = new RoleAddress[5];
+        RoleAddress[] allProposerAddresses = new RoleAddress[ports.length];
         int i;
-        for (i = 0; i < 5; i++) {
+        for (i = 0; i < ports.length; i++) {
             allProposerAddresses[i] = new RoleAddress(this.ip, this.ports[i][0]);
         }
         return allProposerAddresses;
     }
 
     public RoleAddress[] getAllAcceptorAddresses() {
-        RoleAddress[] allAcceptorAddresses = new RoleAddress[5];
+        RoleAddress[] allAcceptorAddresses = new RoleAddress[ports.length];
         int i;
-        for (i = 0; i < 5; i++) {
+        for (i = 0; i < ports.length; i++) {
             allAcceptorAddresses[i] = new RoleAddress(this.ip, this.ports[i][1]);
         }
         return allAcceptorAddresses;
     }
 
     public RoleAddress[] getAllLearnerAddresses() {
-        RoleAddress[] allLearnerAddresses = new RoleAddress[5];
+        RoleAddress[] allLearnerAddresses = new RoleAddress[ports.length];
         int i;
-        for (i = 0; i < 5; i++) {
+        for (i = 0; i < ports.length; i++) {
             allLearnerAddresses[i] = new RoleAddress(this.ip, this.ports[i][2]);
         }
         return allLearnerAddresses;
@@ -73,7 +73,7 @@ public enum GlobalConfig {
 
     public int whichNodeIsThisAddress(RoleAddress roleAddress) {
         int nodeNumber = -1;
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < ports.length; i++) {
             for (int j = 0; j < 3; j++) {
                 if (this.ports[i][j] == roleAddress.getPortNumber()) {
                     nodeNumber = i;

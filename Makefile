@@ -4,8 +4,8 @@ run:
 	java -classpath bin runtime.Main 0 &
 	java -classpath bin runtime.Main 1 &
 	java -classpath bin runtime.Main 2 &
-	java -classpath bin runtime.Main 3 &
-	java -classpath bin runtime.Main 4 &
+#	java -classpath bin runtime.Main 3 &
+#	java -classpath bin runtime.Main 4 &
 kill:
 	pkill -f 'runtime.Main'
 leader:
