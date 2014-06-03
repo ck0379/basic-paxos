@@ -33,10 +33,10 @@ public abstract class PaxosMessage implements Serializable {
 	}
 	
 	public String toSendString() {
-		return String.format("%d\tSEND\t---> %s", (new Date()).getTime(), this.toString());
+		return String.format("%d\tSEND\t---- %s", (new Date()).getTime(), this.toString());
 	}
 	
 	public String toReceiveString() {
-		return String.format("%d\t\t%s <---\tRECEIVE", (new Date()).getTime(), this.toString());
+		return String.format("%d\t\t%s ----\tRECEIVE", (new Date()).getTime(), this.toString());
 	}
 }
