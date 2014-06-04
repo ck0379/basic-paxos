@@ -1,14 +1,14 @@
 make:
-	javac -sourcepath src src/*/*.java -d bin
+	javac -cp lib/gson-2.2.4.jar -sourcepath src src/*/*.java -d bin
 run:
-	java -classpath bin runtime.Main 0 &
-	java -classpath bin runtime.Main 1 &
-	java -classpath bin runtime.Main 2 &
-#	java -classpath bin runtime.Main 3 &
-#	java -classpath bin runtime.Main 4 &
+	ssh -i ~/.vagrant.d/insecure_private_key -p 2222 vagrant@localhost "cd /vagrant && java -classpath bin:lib/gson-2.2.4.jar runtime.Main 0" &
+	ssh -i ~/.vagrant.d/insecure_private_key -p 2200 vagrant@localhost "cd /vagrant && java -classpath bin:lib/gson-2.2.4.jar runtime.Main 1" &
+	ssh -i ~/.vagrant.d/insecure_private_key -p 2201 vagrant@localhost "cd /vagrant && java -classpath bin:lib/gson-2.2.4.jar runtime.Main 2" &
+proposal:
+	ssh -i ~/.vagrant.d/insecure_private_key -p 2222 vagrant@localhost "echo $(VALUE) | nc 11.11.1.101 50007" &
 kill:
-	pkill -f 'runtime.Main'
-leader:
-	parallel --verbose --jobs 5 --xapply echo {1} '|' nc -w1 localhost {2} ::: 0 1 2 3 4 ::: 10000 20000 30000 40000 50000
+	ssh -i ~/.vagrant.d/insecure_private_key -p 2222 vagrant@localhost "pkill -f 'runtime.Main'"
+	ssh -i ~/.vagrant.d/insecure_private_key -p 2200 vagrant@localhost "pkill -f 'runtime.Main'"
+	ssh -i ~/.vagrant.d/insecure_private_key -p 2201 vagrant@localhost "pkill -f 'runtime.Main'"
 clean:
 	rm -rf bin/*

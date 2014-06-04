@@ -33,23 +33,6 @@ public enum GlobalConfig {
         this.currentNodeNumber = currentNode;
         this.connectionProtocol = connectionProtocol;
         try {
-            this.localIp = InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-    public int getClientListenPortNumber() {
-
-        return this.CLIENT_PORT;
-    }
-
-
-
-    public void init() {
-        try {
             Gson gson = new Gson();
             BufferedReader bufferedReader = new BufferedReader(new FileReader("global_config.json"));
             String[] ipStrings = gson.fromJson(bufferedReader, String[].class);
@@ -72,16 +55,30 @@ public enum GlobalConfig {
         this.localIp = this.paxosHosts[this.currentNodeNumber];
     }
 
-    public RoleAddress getCurrentRoleAddressByRoleClass(PaxosRole paxosRole) {
-        if (paxosRole instanceof Proposer) {
+    public void init() {
+
+    }
+
+    public int getClientListenPortNumber() {
+
+        return this.CLIENT_PORT;
+    }
+
+    public RoleAddress getCurrentRoleAddressByRoleClass(Class paxosRoleClass) {
+        if (paxosRoleClass.equals(Proposer.class)) {
             return (new RoleAddress(this.localIp, GlobalConfig.PROPOSER_PORT));
-        } else if (paxosRole instanceof Acceptor) {
+        } else if (paxosRoleClass.equals(Acceptor.class)) {
             return (new RoleAddress(this.localIp, GlobalConfig.ACCEPTOR_PORT));
-        } else if (paxosRole instanceof Learner) {
+        } else if (paxosRoleClass.equals(Learner.class)) {
             return (new RoleAddress(this.localIp, GlobalConfig.LEARNER_PORT));
         } else {
+            assert false:"Invalid PaxosRole class: " + paxosRoleClass;
             return null;
         }
+    }
+
+    public RoleAddress getCurrentRoleAddressByRole(PaxosRole paxosRole) {
+        return this.getCurrentRoleAddressByRoleClass(paxosRole.getClass());
     }
 
     public RoleAddress[] getAllProposerAddresses() {

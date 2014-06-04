@@ -25,7 +25,7 @@ public abstract class PaxosRole{
     }
 
 	public void handleMessage(PaxosMessage message) {
-		assert GlobalConfig.INSTANCE.getCurrentRoleAddress(this).equals(message.getReceiverAddress());
+		assert GlobalConfig.INSTANCE.getCurrentRoleAddressByRole(this).equals(message.getReceiverAddress());
 	}
 	
 	public void sendMessage(PaxosMessage message) {
