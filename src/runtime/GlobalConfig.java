@@ -1,83 +1,129 @@
 package runtime;
 
+import com.google.gson.Gson;
 import datastructure.RoleAddress;
-import role.*;
+import role.Acceptor;
+import role.Learner;
+import role.PaxosRole;
+import role.Proposer;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public enum GlobalConfig {
+
     INSTANCE;
+
     private int currentNodeNumber;
     private ConnectionProtocol connectionProtocol;
-    public int ports[][] = {{10001, 10002, 10003}, {20001, 20002, 20003}, {30001, 30002, 30003}};//, {40001, 40002, 40003}, {50001, 50002, 50003}};
-    private InetAddress ip;
+    public InetAddress localIp;
+    private InetAddress[] paxosHosts;
+
+    public static final int CLIENT_PORT = 50007;
+    public static final int PROPOSER_PORT = 50001;
+    public static final int ACCEPTOR_PORT = 50002;
+    public static final int LEARNER_PORT = 50003;
+    private static final int MAXIMUM_NODE_NUMBER = 10;
 
     public void init(int currentNode, ConnectionProtocol connectionProtocol) {
 
         this.currentNodeNumber = currentNode;
         this.connectionProtocol = connectionProtocol;
         try {
-            this.ip = InetAddress.getLocalHost();
+            this.localIp = InetAddress.getLocalHost();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
     }
 
-    public RoleAddress getCurrentRoleAddressByRoleClass(Class paxosRoleClass) {
-        if (paxosRoleClass.equals(Proposer.class)) {
-            return (new RoleAddress(this.ip, this.ports[this.currentNodeNumber][0]));
-        } else if (paxosRoleClass.equals(Acceptor.class)) {
-            return (new RoleAddress(this.ip, this.ports[this.currentNodeNumber][1]));
-        } else if (paxosRoleClass.equals(Learner.class)) {
-            return (new RoleAddress(this.ip, this.ports[this.currentNodeNumber][2]));
+
+
+    public int getClientListenPortNumber() {
+
+        return this.CLIENT_PORT;
+    }
+
+
+
+    public void init() {
+        try {
+            Gson gson = new Gson();
+            BufferedReader bufferedReader = new BufferedReader(new FileReader("global_config.json"));
+            String[] ipStrings = gson.fromJson(bufferedReader, String[].class);
+            this.paxosHosts = new InetAddress[ipStrings.length];
+            for (int i = 0; i < ipStrings.length; i++) {
+                this.paxosHosts[i] = InetAddress.getByName(ipStrings[i]);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        /*
+        try {
+        this.localIp = InetAddress.getByName(InetAddress.getLocalHost().getHostAddress());
+        } catch (UnknownHostException e) {
+        e.printStackTrace();
+        }
+        */
+        this.localIp = this.paxosHosts[this.currentNodeNumber];
+    }
+
+    public RoleAddress getCurrentRoleAddressByRoleClass(PaxosRole paxosRole) {
+        if (paxosRole instanceof Proposer) {
+            return (new RoleAddress(this.localIp, GlobalConfig.PROPOSER_PORT));
+        } else if (paxosRole instanceof Acceptor) {
+            return (new RoleAddress(this.localIp, GlobalConfig.ACCEPTOR_PORT));
+        } else if (paxosRole instanceof Learner) {
+            return (new RoleAddress(this.localIp, GlobalConfig.LEARNER_PORT));
         } else {
             return null;
         }
     }
 
-    public RoleAddress getCurrentRoleAddress(PaxosRole paxosRole) {
-        return this.getCurrentRoleAddressByRoleClass(paxosRole.getClass());
-    }
-
     public RoleAddress[] getAllProposerAddresses() {
-        RoleAddress[] allProposerAddresses = new RoleAddress[ports.length];
+        int numberOfPaxosHosts = this.paxosHosts.length;
+        RoleAddress[] allProposerAddresses = new RoleAddress[numberOfPaxosHosts];
         int i;
-        for (i = 0; i < ports.length; i++) {
-            allProposerAddresses[i] = new RoleAddress(this.ip, this.ports[i][0]);
+        for (i=0; i<numberOfPaxosHosts; i++) {
+            allProposerAddresses[i] = new RoleAddress(this.paxosHosts[i], GlobalConfig.PROPOSER_PORT);
         }
         return allProposerAddresses;
     }
 
     public RoleAddress[] getAllAcceptorAddresses() {
-        RoleAddress[] allAcceptorAddresses = new RoleAddress[ports.length];
+        int numberOfPaxosHosts = this.paxosHosts.length;
+        RoleAddress[] allAcceptorAddresses = new RoleAddress[numberOfPaxosHosts];
         int i;
-        for (i = 0; i < ports.length; i++) {
-            allAcceptorAddresses[i] = new RoleAddress(this.ip, this.ports[i][1]);
+        for (i=0; i<numberOfPaxosHosts; i++) {
+            allAcceptorAddresses[i] = new RoleAddress(this.paxosHosts[i], GlobalConfig.ACCEPTOR_PORT);
         }
         return allAcceptorAddresses;
     }
 
     public RoleAddress[] getAllLearnerAddresses() {
-        RoleAddress[] allLearnerAddresses = new RoleAddress[ports.length];
+        int numberOfPaxosHosts = this.paxosHosts.length;
+        RoleAddress[] allLearnerAddresses = new RoleAddress[numberOfPaxosHosts];
         int i;
-        for (i = 0; i < ports.length; i++) {
-            allLearnerAddresses[i] = new RoleAddress(this.ip, this.ports[i][2]);
+        for (i=0; i<numberOfPaxosHosts; i++) {
+            allLearnerAddresses[i] = new RoleAddress(this.paxosHosts[i], GlobalConfig.LEARNER_PORT);
         }
         return allLearnerAddresses;
     }
 
     public int getNumberOfQuorum() {
-        return ports.length / 2 + 1;
+        return this.paxosHosts.length/2 + 1;
     }
 
     public int whichNodeIsThisAddress(RoleAddress roleAddress) {
+        int numberOfPaxosHosts = this.paxosHosts.length;
         int nodeNumber = -1;
-        for (int i = 0; i < ports.length; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (this.ports[i][j] == roleAddress.getPortNumber()) {
-                    nodeNumber = i;
-                }
+        for (int i=0; i<numberOfPaxosHosts; i++) {
+            if (this.paxosHosts[i].equals(roleAddress.getIp())) {
+                nodeNumber=i;
             }
         }
         return nodeNumber;
@@ -85,22 +131,17 @@ public enum GlobalConfig {
 
     public Class whichRoleIsThisAddress(RoleAddress roleAddress) {
 
-        switch (roleAddress.getPortNumber() % 10000) {
-            case 1:
+        switch (roleAddress.getPortNumber()) {
+            case GlobalConfig.PROPOSER_PORT:
                 return Proposer.class;
-            case 2:
+            case GlobalConfig.ACCEPTOR_PORT:
                 return Acceptor.class;
-            case 3:
+            case GlobalConfig.LEARNER_PORT:
                 return Learner.class;
             default:
-                // What kind of exception to throw?
-                return PaxosRole.class;
+                assert false:"roleAddress is invalid:" + roleAddress;
+                return null;
         }
-    }
-
-    public int getClientListenPortNumber() {
-
-        return (this.currentNodeNumber + 1) * 10000;
     }
 
     public int getCurrentNodeNumber() {
@@ -108,7 +149,7 @@ public enum GlobalConfig {
     }
 
     public int getMaximumNodeNumber() {
-        return 10;
+        return MAXIMUM_NODE_NUMBER;
     }
 
     public ConnectionProtocol getConnectionProtocol() {
